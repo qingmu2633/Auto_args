@@ -1,0 +1,29 @@
+/* bootstrap 补充css */
+
+/* 下拉框 */
+.dropdown-menu li {
+  cursor: pointer;
+}
+
+.dropdown-menu .active {
+  color: rgba(0, 128, 255, 0.8);
+  background-color: #e0f0ff;
+}
+
+/* 上传文件 */
+.upload-box {
+  position: relative;
+}
+
+.upload-value {
+  position: relative;
+  z-index: 3;
+  opacity: 0;
+}
+
+.upload-text {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100% !important;
+}

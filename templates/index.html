@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>参数枚举</title>
+    {#    <link rel="stylesheet" href="../static/css/bootstrap.min.css" />#}
+    <link rel="stylesheet" href="{% static '/css/bootstrap.min.css' %}" />
+    {#    <link rel="stylesheet" href="../static/css/form.css" />#}
+    <link rel="stylesheet" href="{% static '/css/form.css' %}" />
+    <style>
+        body {
+            padding: 0 30px;
+        }
+
+        .checkbox-modify {
+            margin: 0;
+            margin-left: 20px;
+        }
+
+        .upload-box {
+            position: relative;
+        }
+
+        .upload-value {
+            position: relative;
+            z-index: 3;
+            opacity: 0;
+        }
+
+        .upload {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+        }
+    </style>
+    {#    <script src="../static/js/jquery-3.2.1.min.js"></script>#}
+    {#    <script src="../static/js/bootstrap.min.js"></script>#}
+    {#    <script src="../static/js/Form.js"></script>#}
+    <script src="{% static '/js/jquery-3.2.1.min.js' %}"></script>
+    <script src="{% static '/js/bootstrap.min.js' %}"></script>
+    <script src="{% static '/js/Form.js' %}"></script>
+
+</head>
+
+<body>
+<p class="alert alert-info" role="alert" style="text-align:center">接口参数枚举</p>
+<table>
+    <th>
+        <div>
+            <form id="param_form">
+                <div class="form-inline">
+                    <div class="dropdown form-group">
+                        <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1"
+                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                            <span class="select_text">参数名称</span>
+                            {#                        <span class="caret"></span>#}
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                            <li><a data-val="args_name">参数名称</a></li>
+                            <li><a data-val="api_name">接口名称</a></li>
+                            <li><a data-val="project_name">项目名称</a></li>
+                        </ul>
+                        <input class="select_value" type="hidden" name="types" value=args_name>
+                    </div>
+                    <input class="form-control" type="text" name="keywords"  value="{{ request.GET.keywords }}">
+                    <button class="btn btn-default">搜索</button>
+                </div>
+            </form>
+        </div>
+    </th>
+    <th>
+        <div>
+            <form id="token_form" class="navbar-form" action="/myenum/save_args/" method="post">
+                {% csrf_token %}
+                <div class="left form-row form-group">
+                    <input class="form-row form-control col-10" type="text" name="argsName0">
+                    <input id="argsName" class="btn btn-default" type="submit" name="argsName" value="增加参数">
+                </div>
+            </form>
+        </div>
+    </th>
+    <th>
+        <div>
+            <form id="upload_form" class="navbar-form" enctype="multipart/form-data" action="/myenum/upload/" method="post">
+                {% csrf_token %}
+                <div class="form-group upload-box">
+                    <input id="upload_text" class="form-control upload-text" type="text" placeholder="请选择文件上传" readonly>
+                    <input id="upload" class="form-control upload-value" type="file" name="myfile">
+                </div>
+                <input id="upload_excel" class="btn btn-default" type="submit" name="file2" value="批量上传">
+            </form>
+        </div>
+    </th>
+    <th>
+        <div><a href="{% url 'myenum:cron_job' %}" class="btn btn-default">定时任务配置</a></div>
+    </th>
+    {#    <th>#}
+    {#        <div><a href="{% url 'myenum:test' %}" class="btn btn-default">表格联动</a></div>#}
+    {#    </th>#}
+</table>
+<br>
+<div>
+    {% if args_list %}
+        <table class="table table-bordered table-hover" id="body_data">
+        <tr>
+            <th>参数名称</th>
+            <th>所属项目名称</th>
+            <th>所属接口名称</th>
+            <th>所属接口url</th>
+            <th>参数描述</th>
+        </tr>
+        {% for args in args_list.object_list %}
+            <tr>
+                <td>
+                    <a
+                            href="/myenum/{{ args.args_name }}/?api_name={{ args.api_name }}&project_name={{ args.project_name }}">
+                        {{args.args_name }}
+                    </a>
+                </td>
+                <td>{{ args.project_name }}</td>
+                <td>{{ args.api_name }}</td>
+                <td>{{ args.api_url }}</td>
+                <td>{{ args.mark }}</td>
+            </tr>
+        {% endfor %}
+    {% else %}
+        <p>No polls are available.</p>
+    {% endif %}
+
+    </table>
+
+</div>
+<div id="pagination"> {{ args_list.render }}</div>
+<p class="alert alert-info" role="alert">{{ res }}</p>
+{#    <br>#}
+<form id="case_form" class="navbar-form" name="frm" action="/myenum/create_case/" method="post">
+    {% csrf_token %}
+    <label>请选择生成或删除用例的项目：</label>
+    <div class="dropdown form-group">
+        <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown"
+                aria-haspopup="true" aria-expanded="true">
+            <span class="select_text"></span>
+            <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+            {% if project_name %}
+                {% for p_name in project_name %}
+                    <li><a data-val="{{ p_name.id }}">{{ p_name.name }}</a></li>
+                {% endfor %}
+            {% else %}
+                <p>No polls are available.</p>
+            {% endif %}
+        </ul>
+        <input class="select_value" type="hidden" id="choice" name="choice" value="">
+    </div>
+    <div class="dropdown form-group">
+        <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown"
+                aria-haspopup="true" aria-expanded="true">
+            <span class="select_text"></span>
+            <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+            <li><a>请选择</a></li>
+        </ul>
+        <input class="select_value" type="hidden" id="apiname" name="apiname" value="">
+    </div>
+    <label> &nbsp;&nbsp;&nbsp;&nbsp;===> &nbsp;</label>
+    <input id="case_save" class="btn btn-default" type="submit" name="case_save" value="生成用例">
+    &nbsp;&nbsp;&nbsp;&nbsp;
+    <input id="case_del" class="btn btn-default" type="submit" name="case_del" value="删除用例">
+    <label>&nbsp;&nbsp;&nbsp;&nbsp;根据项目名称把其接口包含的参数一次性同步出来 ==> </label>
+    <input id="sync_args" class="btn btn-default" type="submit" name="sync_args" value="同步参数">
+</form>
+<p class="alert alert-info" role="alert"></p>
+<br>
+
+<script>
+    var datas = {{ api_project | safe }}
+        $(function () {
+            const paramForm = new Form('#param_form');
+            const caseForm = new Form({
+                container: '#case_form',
+                events: {
+                    '#choice change': function (x) {
+                        var projectname = $(this).val();
+                        {#var projectname = $(this).find("option:selected").text();#}
+                        {#console.log(projectname)#}
+                        console.log(datas);
+                        {#console.log(datas[projectname]);#}
+                        const options = [];
+                        for (i = 0; i < datas[projectname].length; i++) {
+                            const option = {
+                                value: datas[projectname][i],
+                                text: datas[projectname][i]
+                            }
+                            options.push(option)
+                        }
+                        const choiceSelect = caseForm.getSelect('apiname')
+                        choiceSelect.setOptions(options)
+
+                    }
+                }
+            });
+            const uploadForm = new Form('#upload_form');
+        })
+</script>
+
+</body>
+
+</html>

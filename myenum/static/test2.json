@@ -1,0 +1,110 @@
+{
+    "swagger":"2.0",
+    "info":{
+        "description":"Api Documentation",
+        "version":"1.0",
+        "title":"Api Documentation",
+        "termsOfService":"urn:tos",
+        "contact":{
+
+        },
+        "license":{
+            "name":"Apache 2.0",
+            "url":"http://www.apache.org/licenses/LICENSE-2.0"
+        }
+    },
+    "host":"swagger-usercenter.abchina-zj-dev.hsjdata.com",
+    "basePath":"/",
+    "tags":[
+        {
+            "name":"已登录用户相关操作",
+            "description":"Fx Current Login User Controller"
+        },
+        {
+            "name":"账号管理",
+            "description":"Fx Uc Sys Log Controller"
+        }
+    ],
+    "paths":{
+        "/account/accountIsUnique":{
+            "get":{
+                "tags":[
+                    "账号管理"
+                ],
+                "summary":"账号是否存在",
+                "operationId":"accountIsUniqueUsingGET",
+                "produces":[
+                    "*/*"
+                ],
+                "parameters":[
+                    {
+                        "name":"search",
+                        "in":"query",
+                        "description":"search",
+                        "required":true,
+                        "type":"string"
+                    }
+                ],
+                "responses":{
+                    "200":{
+                        "description":"OK",
+                        "schema":{
+                            "$ref":"#/definitions/Result«boolean»",
+                            "originalRef":"Result«boolean»"
+                        }
+                    },
+                    "401":{
+                        "description":"Unauthorized"
+                    },
+                    "403":{
+                        "description":"Forbidden"
+                    },
+                    "404":{
+                        "description":"Not Found"
+                    }
+                }
+            }
+        },
+        "/account/accountIsUnique2":{
+            "get":{
+                "tags":[
+                    "账号管理"
+                ],
+                "summary":"账号是否存在2",
+                "operationId":"accountIsUniqueUsingGET",
+                "produces":[
+                    "*/*"
+                ],
+                "parameters":[
+                    {
+                        "name":"search2",
+                        "in":"query",
+                        "description":"search",
+                        "required":true,
+                        "type":"string"
+                    }
+                ],
+                "responses":{
+                    "200":{
+                        "description":"OK",
+                        "schema":{
+                            "$ref":"#/definitions/Result«boolean»",
+                            "originalRef":"Result«boolean»"
+                        }
+                    },
+                    "401":{
+                        "description":"Unauthorized"
+                    },
+                    "403":{
+                        "description":"Forbidden"
+                    },
+                    "404":{
+                        "description":"Not Found"
+                    }
+                }
+            }
+        }
+        
+    },
+    "definitions":{}
+}

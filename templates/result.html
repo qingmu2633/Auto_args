@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="{% static '/css/bootstrap.min.css' %}" />
+    <link rel="stylesheet" href="{% static '/css/form.css' %}" />
+    <style>
+        body {
+            padding: 0 30px;
+        }
+
+        .checkbox-modify {
+            margin: 0;
+            margin-left: 20px;
+        }
+    </style>
+    <script src="{% static '/js/jquery-3.2.1.min.js' %}"></script>
+    <script src="{% static '/js/bootstrap.min.js' %}"></script>
+    <script src="{% static '/js/Form.js' %}"></script>
+
+</head>
+
+<body>
+<h1 class="alert alert-info" role="alert">{{ message }}</h1>
+<a href="{% url 'myenum:index' %}" class="btn btn-default">返回首页</a>
+</body>
+
+</html>

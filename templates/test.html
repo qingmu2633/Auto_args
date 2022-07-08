@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+<title>定时任务配置</title>
+
+</head>
+    <link rel="stylesheet" href="{% static '/css/bootstrap.min.css' %}" />
+    <link rel="stylesheet" href="{% static '/css/form.css' %}" />
+<style>
+    body {
+        padding: 0 30px;
+    }
+
+    .checkbox-modify {
+        margin: 0;
+        margin-left: 20px;
+    }
+</style>
+    <script src="{% static '/js/jquery-3.2.1.min.js' %}"></script>
+    <script src="{% static '/js/bootstrap.min.js' %}"></script>
+    <script src="{% static '/js/Form.js' %}"></script>
+<body>
+<h1>-----------</h1>
+
+<form name="frm" action="/myenum/test/" method="post" >
+{% csrf_token %}
+{% if args_list %}
+    <table class="table table-bordered table-hover">
+        <tr>
+            <th>参数名称</th>
+                <th>所属项目名称</th>
+                <th>所属接口名称</th>
+                <th>所属接口url</th>
+                <th>参数描述</th>
+        </tr>
+{#        列表数据#}
+        {% for args in args_list.object_list %}
+            <tr>
+                <td>
+                    <a
+                        href="/myenum/{{ args.args_name }}/?api_name={{ args.api_name }}&project_name={{ args.project_name }}">
+                        {{args.args_name }}
+                    </a>
+                </td>
+                <td name="{{ args.id }}">
+                {% if args %}
+                    {% for n in args.a_list %}
+                        {% if forloop.first %}
+                            {{ n.project_name }}
+                        {% endif %}
+                    {% endfor %}
+
+                {% else %}
+                    kkk
+                {% endif %}
+                </td>
+                <td>
+                <select id="apiname" onchange="getContent(this.value,this.options[this.selectedIndex].text)">
+                    {% for n in args.a_list %}
+
+                            <option value="{{ args.id }}">{{ n.api_name }}</option>
+
+                    {% endfor %}
+                </select>
+                </td>
+                <td name="{{ args.id }}">
+                {% if args %}
+                    {% for n in args.a_list %}
+                        {% if forloop.first %}
+                            {{ n.api_url }}
+                        {% endif %}
+                    {% endfor %}
+                {% else %}
+                    kkk
+                {% endif %}
+                </td>
+                <td name="{{ args.id }}">
+                {% if args %}
+                    {% for n in args.a_list %}
+                        {% if forloop.first %}
+                            {{ n.mark }}
+                        {% endif %}
+                    {% endfor %}
+                {% else %}
+                    kkk
+                {% endif %}
+                </td>
+
+            </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    <p>无运行中的定时任务，请配置！</p>
+{% endif %}
+<div id="pagination"> {{ args_list.render }}</div>
+<div>
+    <ul>
+        <a href="{% url 'myenum:index' %}" class="btn btn-default">返回首页</a>
+    </ul>
+</div>
+<script>
+    var datas = {{ args_list.object_list | safe }}
+     {#防止页面刷新自动提交表单#}
+     if ( window.history.replaceState ) {
+            window.history.replaceState( null, null, window.location.href );
+     }
+     function getContent(value,content){
+         {#alert("选中的值是 "+value+" 选中的内容是 "+content);#}
+         console.log(datas)
+         console.log(datas[0]['a_list'])
+         {#console.log(datas)#}
+         {#document.getElementById("project_name").value = content#}
+         var args_data = document.getElementsByName(value);
+
+         for(var i=0;i<datas.length;i++){
+             console.log(content);
+             {#console.log(datas[i]['a_list']['api_name']);#}
+             if(value==datas[i]['id']){
+                 for(var j=0;j<datas[i]['a_list'].length;j++){
+                     if(content==datas[i]['a_list'][j]['api_name']){
+                         args_data[0].innerText = datas[i]['a_list'][j]['project_name'];
+                         args_data[1].innerText = datas[i]['a_list'][j]['api_url'];
+                         args_data[2].innerText = datas[i]['a_list'][j]['mark'];
+                    }
+                 }
+             }
+         }
+     }
+
+</script>
+
+</body>
+</html>

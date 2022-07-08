@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<link rel="stylesheet" href="{% static '/css/bootstrap.min.css' %}" />
+<link rel="stylesheet" href="{% static '/css/form.css' %}" />
+<style>
+    body {
+        padding: 0 30px;
+    }
+
+    .checkbox-modify {
+        margin: 0;
+        margin-left: 20px;
+    }
+
+</style>
+<script src="{% static '/js/jquery-3.2.1.min.js' %}"></script>
+<script src="{% static '/js/bootstrap.min.js' %}"></script>
+<script src="{% static '/js/Form.js' %}"></script>
+
+<body>
+{##}
+<h1>编辑参数枚举值</h1>
+
+{% if error_message %}<p class="alert alert-danger" role="alert"><strong>{{ error_message }}</strong></p>{% endif %}
+
+<form id="param_form" name="param_form" onsubmit="return validateForm()" class="navbar-form" action="/myenum/detail/" method="post">
+    {% csrf_token %}
+
+    {% if args %}
+        <table class="table table-bordered table-hover">
+            <thead>
+            <tr>
+                <TH><input type="checkbox" onclick="swapCheck()" id="checked"  name="checkAll"> id</TH>
+                <TH>参数名称</TH>
+                <TH>枚举值</TH>
+                <TH>正反例</TH>
+                <TH>枚举条件</TH>
+                <TH>所属指定接口</TH>
+                <TH>接口url</TH>
+                <TH>接口描述</TH>
+                <TH>所属项目</TH>
+            </tr>
+            </thead>
+
+            <tbody>
+
+            {% for data in args %}
+                <tr>
+                    <td>
+                        <div class="checkbox checkbox-modify">
+                            <input value="{{ data.id }}" ONCLICK="swapCheck2(this)"  type="checkbox" id="checked" name="tags">
+                            {{ data.id }}
+                        </div>
+                    </td>
+                    <td>{{ data.args_name }}</td>
+                    <td>{{ data.args_value }}</td>
+                    <td>{{ data.args_status }}</td>
+                    <td>{{ data.args_conditions }}</td>
+                    <td>{{ data.api_name }}</td>
+                    <td>{{ data.api_url }}</td>
+                    <td>{{ data.mark }}</td>
+                    <td>{{ data.project_name }}</td>
+
+                    <!--{#            <td><button name="del">删除</button></td>#}-->
+                </tr>
+            {% endfor %}
+            {% for dd in args %}
+                {% if forloop.first %}
+                    <tr>
+                        <td></td>
+                        <td><input type="text" class="form-row form-control" name="args_name2" value="{{ dd.args_name }}"
+                                   readonly></td>
+                        <!--                    <td><input type="text" class="form-row" name="args_D2"></td>-->
+                        <td><input type="text" class="form-row form-control" name="args_value2"></td>
+                        <td>
+                            <div class="dropdown">
+                                <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1"
+                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                    <span class="select_text"></span>
+                                    <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                                    <li><a data-val="正例">正例</a></li>
+                                    <li><a data-val="反例">反例</a></li>
+                                </ul>
+                                <input class="select_value" type="hidden" name="choice2" value="">
+                            </div>
+                        </td>
+                        <td><input type="text" class="form-row form-control" name="args_conditions2"></td>
+                        {#                <td><input type="hidden" name="api_name" value="{{ dd.api_name }}"></td>#}
+                        <td><input type="hidden" name="project_name" value="{{ dd.project_name }}"></td>
+                        {#                <td><input type="hidden" name="api_url" value="{{ dd.api_url }}"></td>#}
+                        <!--                    <td><input type="text" class="form-row" name="mark2"></td>-->
+                    </tr>
+                {% endif %}
+            {% endfor %}
+
+            </tbody>
+        </table>
+
+        <br>
+        <div class="form-inline">
+            <label>是否保存为指定接口？&nbsp;&nbsp;</label>
+            <!-- select元素 -->
+            <div class="dropdown form-group">
+                <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="true">
+                    <span class="select_text">
+                    {% for k, v in api_name_list.items %}
+                        {% if forloop.first %}
+                            {{ k }}
+                        {% endif %}
+                    {% endfor %}
+                    </span>
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                    {#                    {% for apiname in api_name_list %}#}
+                    {#                    <li><a data-val="{{apiname.args_name}}">{{ apiname.args_name }}</a></li>#}
+                    {#                    <li><a data-val="{{apiname.project_name}}">{{ apiname.project_name }}</a></li>#}
+                    {#                    {% endfor %}#}
+                    {% for k, v in api_name_list.items %}
+                        {#                        <li><a data-val="{{apiname.args_name}}">{{ apiname.args_name }}</a></li>#}
+                        <li><a data-val="{{ k }}">{{ k }}</a></li>
+                    {% endfor %}
+                </ul>
+                {% for k, v in api_name_list.items %}
+                    {% if forloop.first %}
+                        <input class="select_value" type="hidden" id="choice" name="choice" value={{ k }}>
+                    {% else %}
+                        <input class="select_value" type="hidden" id="choice" name="choice" value="">
+                    {% endif %}
+                {% endfor %}
+
+            </div>
+
+            <div class="dropdown form-group">
+                <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="true">
+                    <span class="select_text">请选择</span>
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                    <li></li>
+                </ul>
+                <input class="select_value" type="hidden" id="apiname" required name="apiname" value="">
+            </div>
+            <button id="save_data" type="submit" name="save_data" class="btn btn-primary">保存</button>
+            <div id="delete_data" type="submit" onclick="dele()"  name="delete_data" class="btn btn-danger">删除</div>
+        </div>
+
+    {% else %}
+        <p class="alert alert-warning" role="alert">无参数展示，请返回首页！</p>
+    {% endif %}
+
+</form>
+<!--{#<iframe id="id_iframe" name="nm_iframe" style="display:none;"></iframe>#}-->
+<div>
+</div>
+<a href="{% url 'myenum:index' %}" class="btn btn-default">返回首页</a>
+<br>
+<br>
+<p style="color:#F00">注意：<br>
+    1.参数枚举值正例和反例都必须有值存在<br>
+    2.参数同步默认导入的参数枚举值主要为了展示用，可以删除掉<br>
+    3.参数枚举值删除时请注意保留至少一个参数枚举值存在，全部删除代表这个参数被删除<br>
+    4.参数枚举值保存为指定接口时，可以只选择项目，那么这个枚举值只在这个项目中的接口使用<br>
+    5.参数枚举值保存为指定接口时，选择项目和接口，那么这个枚举值只在这个项目中的指定接口使用<br>
+    <br>
+
+</p>
+</body>
+<script>
+
+    {#防止页面刷新自动提交表单#}
+    if ( window.history.replaceState ) {
+        window.history.replaceState( null, null, window.location.href );
+    }
+
+    var datas = {{ api_name_list | safe }};
+
+
+
+    $(function () {
+        const caseForm = new Form({
+            container: '#param_form',
+            events: {
+                '#choice change': function (x) {
+                    var projectname = $(this).val();
+                    {#var projectname = $(this).find("option:selected").text();#}
+                    {#console.log(projectname)#}
+                    console.log(datas);
+                    {#console.log(datas[projectname]);#}
+                    const options = [];
+                    for (i = 0; i < datas[projectname].length; i++) {
+                        const option = {
+                            value: datas[projectname][i]['api_name'],
+                            text: datas[projectname][i]['api_name']
+                            {#text: datas[projectname][i]#}
+                            {#text: datas[projectname][i]#}
+                        }
+                        options.push(option)
+                    }
+                    const choiceSelect = caseForm.getSelect('apiname')
+                    choiceSelect.setOptions(options)
+                }
+            }
+        });
+    })
+
+    function fun(){
+        const options = [];
+        const option = {
+            value: datas[$("#choice").val()][0]['api_name'],
+            text: datas[$("#choice").val()][0]['api_name']
+            {#text: datas[projectname][i]#}
+            {#text: datas[projectname][i]#}
+        }
+        options.push(option)
+        const caseForm = new Form({container: '#param_form'})
+        const select = caseForm.getSelect('apiname');
+        select.setOptions(options)
+    }
+
+    window.onload=function () {
+        fun()
+    }
+
+    function validateForm(){
+        var x=document.forms["param_form"]["apiname"].value;
+        {#if (x==null||x==""){#}
+        {#    alert("请选择指定接口");#}
+        {#    return false;#}
+        {##}
+    }
+
+    var isCheckAll = false;
+    var arrays_1=[]
+    var TB = document.getElementsByTagName('tbody')[0];
+
+    function swapCheck() {
+        const rows = TB.rows;
+        $("input[type='checkbox']").each(function () {
+            this.checked = !isCheckAll;
+        });
+        isCheckAll = !isCheckAll;
+        console.log(isCheckAll)
+        if(isCheckAll==true){
+            for (var i = 0; i < rows.length; i++) {
+                var cells = rows[i].cells[0].childNodes[1]
+
+                for (var i = 0; i < rows.length; i++) {
+                    var cells = rows[i].cells[0].childNodes[1]
+                    // for(var j=0;j<cells.length)
+                    if (cells != undefined) {
+                        var ids = cells.innerText
+                        arrays_1.push(ids)
+                    }
+                }
+            }
+        }else{
+            arrays_1.length=0
+        }
+        console.log(arrays_1)
+    }
+
+    // 查找指定的元素在数组中的位置
+    Array.prototype.indexOf = function(val) {
+        for (var i = 0; i < this.length; i++) {
+            if (this[i] == val) {
+                return i;
+            }
+        }
+        return -1;
+    };
+    // 通过索引删除数组元素
+    Array.prototype.remove = function(val) {
+        var index = this.indexOf(val);
+        if (index > -1) {
+            this.splice(index, 1);
+        }
+    }
+
+    function swapCheck2(e) {
+        var values = e.value;
+        var flag=e.checked
+        console.log(values)
+        if(flag ==true){
+            this.arrays_1.push(values)
+        }else{
+            for(var i =0;i<this.arrays_1.length;i++){
+                if(values == arrays_1[i]){
+                    arrays_1.remove(values)
+                }
+            }
+        }
+    }
+    {#var token = $('input[name=csrfmiddlewaretoken]').val();#}
+    function dele(){
+        if (arrays_1.length!=0){
+            $.ajax({
+                type:"POST",                //请求方式
+                url:"/myenum/detail_delete_all/",                 //路径
+                contentType:"application/json;charset=utf-8",
+                async:true,
+                traditional: true,
+                data:  JSON.stringify({'id': ['13727','13843'], 'args_name': 'aaa0429' }),
+
+                //返回数据的格式
+                success:function(res){  //成功的回调函数
+                    console.log(res);    //res代表返回的数据，可以随心所欲处理数据啦
+                }
+            })
+        }
+    }
+
+
+    {#ajax请求带上token#}
+    $(document).ajaxSend(function(event, xhr, settings) {
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie != '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = jQuery.trim(cookies[i]);
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        function sameOrigin(url) {
+            // url could be relative or scheme relative or absolute
+            var host = document.location.host; // host + port
+            var protocol = document.location.protocol;
+            var sr_origin = '//' + host;
+            var origin = protocol + sr_origin;
+            // Allow absolute or scheme relative URLs to same origin
+            return (url == origin || url.slice(0, origin.length + 1) == origin + '/') ||
+                (url == sr_origin || url.slice(0, sr_origin.length + 1) == sr_origin + '/') ||
+                // or any other URL that isn't scheme relative or absolute i.e relative.
+                !(/^(\/\/|http:|https:).*/.test(url));
+        }
+        function safeMethod(method) {
+            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+        }
+
+        if (!safeMethod(settings.type) && sameOrigin(settings.url)) {
+            xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+        }
+    });
+</script>
+
+</html>

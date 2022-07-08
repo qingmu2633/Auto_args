@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+<title>定时任务配置</title>
+
+</head>
+    <link rel="stylesheet" href="{% static '/css/bootstrap.min.css' %}" />
+    <link rel="stylesheet" href="{% static '/css/form.css' %}" />
+<style>
+    body {
+        padding: 0 30px;
+    }
+
+    .checkbox-modify {
+        margin: 0;
+        margin-left: 20px;
+    }
+</style>
+    <script src="{% static '/js/jquery-3.2.1.min.js' %}"></script>
+    <script src="{% static '/js/bootstrap.min.js' %}"></script>
+    <script src="{% static '/js/Form.js' %}"></script>
+<body>
+<h1>---定时任务配置---</h1>
+
+<form name="frm" action="/myenum/cron_job/" method="post" >
+{% csrf_token %}
+{% if cron_job %}
+    <table class="table table-bordered table-hover">
+        <tr>
+            <TH>id</TH>
+            <TH>项目名称</TH>
+            <TH>webhook</TH>
+            <TH>任务状态</TH>
+        </tr>
+{#        列表数据#}
+        {% for data in cron_job %}
+        <tr>
+            <td>
+                <div class="checkbox checkbox-modify">
+                    <input value="{{ data.id }}" type="checkbox" name="tags">
+                    {{ data.id }}
+                </div>
+{#                <input value="{{ data.id }}" type="checkbox" name="tags">{{ data.id }}#}
+            </td>
+            <td>{{ data.project_name }}</td>
+            <td>{{ data.webhook }}</td>
+            <td>{{ data.is_status }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    <p>无运行中的定时任务，请配置！</p>
+{% endif %}
+<div class="form-inline">
+    <label>配置定时任务：</label>
+    {#        录入框#}
+    {% if project_name %}
+        {% for p_name in project_name %}
+            {% if forloop.first %}
+                <input visibility: hidden type="text" name="project_name" id="project_name" value="{{ p_name.name }}">
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+    <select style="width:135px;height: 30px" name="project_id" id="project_id" onchange="getContent(this.value,this.options[this.selectedIndex].text)">
+        {% if project_name %}
+            {% for p_name in project_name %}
+               <option value="{{ p_name.id }}">{{ p_name.name }}</option>
+            {% endfor %}
+        {% endif %}
+    </select>
+    <input type="text" name="webhook" style="width:820px;height: 30px">
+    <select style="width:140px;height: 30px" name="job_status">
+        <option value="1">启用</option>
+        <option value="0">停用</option>
+    </select>
+</div>
+<br>
+<br>
+    <div class="form-inline">
+        <label>是否保存为定时任务？&nbsp;&nbsp;</label>
+
+        <input id="save_data" class="btn btn-primary" type="submit" name="save_data" value="保存">
+        <input id="check_status" class="btn btn-primary" type="submit" name="check_status" value="启停用">
+        <input id="delete_data" class="btn btn-danger" type="submit" name="delete_data" value="删除">
+    </div>
+</form>
+<br>
+<div>
+    <ul>
+        <a href="{% url 'myenum:index' %}" class="btn btn-default">返回首页</a>
+    </ul>
+</div>
+
+<p style="color:#F00">注意：<br>
+    1.任务状态：0-停用，1-启用<br>
+    2.勾选对应项目，点击启停用按钮即可切换定时任务状态<br>
+    <br>
+
+</p>
+
+<script>
+     {#防止页面刷新自动提交表单#}
+     if ( window.history.replaceState ) {
+            window.history.replaceState( null, null, window.location.href );
+     }
+     function getContent(value,content){
+         {#alert("选中的值是"+value+"选中的内容是"+content);#}
+         document.getElementById("project_name").value = content
+     }
+</script>
+
+</body>
+</html>
